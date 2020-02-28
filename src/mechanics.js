@@ -35,8 +35,10 @@ export function line({x1, y1, x2, y2}) {
   function paint(i, j) {
     const isH = y1 === i && x1 <= j && j <= x2
     const isV = x1 === j && y1 <= i && i <= y2
+    const isHvalid = x1 <= x2
+    const isVvalid = y1 <= y2
 
-    return isH || isV
+    return (isH || isV) && isHvalid && isVvalid
   }
   return {
     paint,
@@ -49,13 +51,15 @@ export function rectangle({x1, y1, x2, y2}) {
     const isV1 = x1 === j && y1 <= i && i <= y2
     const isH2 = y2 === i && x1 <= j && j <= x2
     const isV2 = x2 === j && y1 <= i && i <= y2
+    const isHvalid = x1 <= x2
+    const isVvalid = y1 <= y2
     const isFill = i >= y1 && i <= y2 && j >= x1 && j <= x2
 
     if (bucketFill) {
       return isFill
     }
 
-    return isH1 || isV1 || isH2 || isV2
+    return (isH1 || isV1 || isH2 || isV2) && isHvalid && isVvalid
   }
 
   return {
