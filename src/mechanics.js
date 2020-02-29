@@ -1,24 +1,23 @@
 export function shape(n, m) {
   let str = ''
-  // let path = 'x'
-  // let space = '.'
   let path = '<div>x</div>'
   let space = '<div>.</div>'
 
   return {
     paint(shapes, options = {}) {
-      const {bucketFill = ''} = options
+      const {bucketFill = {}} = options
+
       str = ''
       for (let i = 1; i <= m; i++) {
         for (let j = 1; j <= n; j++) {
           const isPath = shapes.some(shape => shape.paint(i, j))
           const isFill =
-            bucketFill && !shapes.some(shape => shape.paint(i, j, bucketFill))
-
+            bucketFill.token &&
+            !shapes.some(shape => shape.paint(i, j, bucketFill))
           if (isPath) {
             str += path
           } else if (isFill) {
-            str += `<div>${bucketFill}</div>`
+            str += `<div>${bucketFill.token}</div>`
           } else {
             str += space
           }
@@ -46,7 +45,10 @@ export function line({x1, y1, x2, y2}) {
 }
 
 export function rectangle({x1, y1, x2, y2}) {
-  function paint(i, j, bucketFill) {
+  function paint(i, j, bucketFill = {}) {
+    const {token = '', coords = []} = bucketFill
+
+    const [xFill, yFill] = coords
     const isH1 = y1 === i && x1 <= j && j <= x2
     const isV1 = x1 === j && y1 <= i && i <= y2
     const isH2 = y2 === i && x1 <= j && j <= x2
@@ -54,8 +56,12 @@ export function rectangle({x1, y1, x2, y2}) {
     const isHvalid = x1 <= x2
     const isVvalid = y1 <= y2
     const isFill = i >= y1 && i <= y2 && j >= x1 && j <= x2
+    const isFillInside = xFill > x1 && xFill < x2 && yFill > y1 && yFill < y2
 
-    if (bucketFill) {
+    if (bucketFill.token) {
+      if (isFillInside) {
+        return !isFill
+      }
       return isFill
     }
 

@@ -50,14 +50,6 @@ const formValidation = store => {
   return $isValid
 }
 
-const coordsValidation = store => {
-  const $isValid = createStore(false)
-
-  $isValid.watch(console.log)
-
-  return $isValid
-}
-
 //events
 
 const showSection = createEvent('show tool')
@@ -125,6 +117,8 @@ const $canvasScheme = createStore({
 })
 const $bucketFillScheme = createStore({
   token: {value: '', error: ''},
+  x: {value: '', error: ''},
+  y: {value: '', error: ''},
 })
 const $lineCreator = createStore(line)
 const $rectangleCreator = createStore(rectangle)
@@ -138,7 +132,6 @@ const $isCanvasSchemeValid = formValidation($canvasScheme)
 const $isLineSchemeValid = formValidation($lineScheme)
 const $isRectangleSchemeValid = formValidation($rectangleScheme)
 const $isBucketFillSchemeValid = formValidation($bucketFillScheme)
-const $isCoordValid = coordsValidation($rectangleScheme)
 
 $sectionVisibility.on(showSection, (state, section) => ({
   ...state,
@@ -323,7 +316,11 @@ const BucketFill = () => {
   const fields = useStore($bucketFillScheme)
   const isFormValid = useStore($isBucketFillSchemeValid)
   const handleChange = event => {
-    if (event.target.value.length <= 1) {
+    const token = event.target.getAttribute('data-coord-type') === 'token'
+
+    if (isNumbers(event.target.value) && !token) {
+      prependedHandleInput({event, formName: 'bucket-fill'})
+    } else if (token && event.target.value.length <= 1) {
       prependedHandleInput({event, formName: 'bucket-fill'})
     }
   }
@@ -333,7 +330,10 @@ const BucketFill = () => {
 
   const handleSubmit = event => {
     event.preventDefault()
-    bucketFilled(fields.token.value)
+    bucketFilled({
+      token: fields.token.value,
+      coords: [fields.x.value, fields.y.value],
+    })
     resetForm()
   }
 
